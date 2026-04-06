@@ -1,0 +1,44 @@
+{
+  "name": "FinTrack — Control Financiero",
+  "short_name": "FinTrack",
+  "description": "Rastrea tus gastos, establece presupuestos y visualiza tus patrones financieros.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0f1e",
+  "theme_color": "#0a0f1e",
+  "orientation": "portrait-primary",
+  "lang": "es",
+  "scope": "/",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Agregar gasto",
+      "short_name": "Nuevo gasto",
+      "description": "Registra un gasto rápidamente",
+      "url": "/?action=add",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Ver dashboard",
+      "short_name": "Dashboard",
+      "url": "/?page=dashboard",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

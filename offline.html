@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>FinTrack — Sin conexión</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    body {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px;
+    }
+    .offline-wrap {
+      text-align: center;
+      max-width: 380px;
+    }
+    .offline-icon {
+      font-size: 72px; margin-bottom: 24px; display: block;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .offline-wrap h1 {
+      font-size: 28px; font-weight: 800; margin-bottom: 12px;
+    }
+    .offline-wrap p {
+      color: #94a3b8; font-size: 14px; margin-bottom: 28px; line-height: 1.6;
+    }
+    .offline-features {
+      background: #111827; border: 1px solid #2d3748; border-radius: 12px;
+      padding: 20px; margin-bottom: 24px; text-align: left;
+    }
+    .offline-features h3 {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
+      color: #94a3b8; margin-bottom: 12px;
+    }
+    .offline-features ul {
+      list-style: none; display: flex; flex-direction: column; gap: 8px;
+    }
+    .offline-features li {
+      font-size: 13px; color: #f1f5f9;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn-retry {
+      display: inline-block; background: #f59e0b; color: #000;
+      padding: 12px 28px; border-radius: 6px;
+      font-weight: 700; font-size: 14px; cursor: pointer;
+      border: none; text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-retry:hover { background: #fbbf24; }
+  </style>
+</head>
+<body>
+  <div class="offline-wrap">
+    <span class="offline-icon">⚡</span>
+    <h1>Sin conexión</h1>
+    <p>No tienes acceso a Internet en este momento. Sin embargo, FinTrack sigue disponible de forma local — tus datos están seguros en tu dispositivo.</p>
+
+    <div class="offline-features">
+      <h3>Disponible sin conexión</h3>
+      <ul>
+        <li>Ver gastos registrados</li>
+        <li>Ver presupuestos configurados</li>
+        <li>Consultar gráficos y resúmenes</li>
+        <li>Registrar nuevos gastos</li>
+        <li>Sincronización automática al reconectarte</li>
+      </ul>
+    </div>
+
+    <button class="btn-retry" onclick="window.location.reload()">
+      Intentar de nuevo
+    </button>
+  </div>
+</body>
+</html>

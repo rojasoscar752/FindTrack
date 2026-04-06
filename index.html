@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="Rastrea tus gastos, establece presupuestos y visualiza tus finanzas personales." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FinTrack" />
+
+  <title>FinTrack — Control Financiero</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- OFFLINE BANNER -->
+  <div id="offline-banner" class="offline-banner hidden" role="alert">
+    <span>⚡ Modo sin conexión — Los datos se guardan localmente</span>
+  </div>
+
+  <!-- INSTALL PROMPT -->
+  <div id="install-prompt" class="install-prompt hidden">
+    <div class="install-content">
+      <span class="install-icon">📲</span>
+      <div>
+        <strong>Instalar FinTrack</strong>
+        <p>Accede más rápido desde tu pantalla de inicio</p>
+      </div>
+      <button id="btn-install" class="btn-install">Instalar</button>
+      <button id="btn-dismiss" class="btn-dismiss">✕</button>
+    </div>
+  </div>
+
+  <!-- APP SHELL -->
+  <div id="app">
+
+    <!-- SIDEBAR -->
+    <nav id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-icon">◈</span>
+          <span class="logo-text">FinTrack</span>
+        </div>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#" class="nav-link active" data-page="dashboard">
+          <span class="nav-icon">▦</span> Dashboard
+        </a></li>
+        <li><a href="#" class="nav-link" data-page="gastos">
+          <span class="nav-icon">↕</span> Gastos
+        </a></li>
+        <li><a href="#" class="nav-link" data-page="presupuesto">
+          <span class="nav-icon">◎</span> Presupuesto
+        </a></li>
+        <li><a href="#" class="nav-link" data-page="graficos">
+          <span class="nav-icon">◈</span> Gráficos
+        </a></li>
+        <li><a href="#" class="nav-link" data-page="resumen">
+          <span class="nav-icon">≡</span> Resumen
+        </a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <div class="month-selector">
+          <label>Período</label>
+          <select id="month-select"></select>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MOBILE TOPBAR -->
+    <header class="topbar">
+      <button id="menu-toggle" class="menu-toggle" aria-label="Menú">☰</button>
+      <span class="topbar-title">FinTrack</span>
+      <button id="add-expense-quick" class="btn-quick-add" aria-label="Agregar gasto">+</button>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main id="main-content" class="main-content">
+
+      <!-- ─── DASHBOARD PAGE ─── -->
+      <section id="page-dashboard" class="page active">
+        <div class="page-header">
+          <h1>Dashboard</h1>
+          <span id="current-date" class="date-label"></span>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card kpi-income">
+            <span class="kpi-label">Ingreso mensual</span>
+            <span class="kpi-value" id="kpi-income">$0</span>
+          </div>
+          <div class="kpi-card kpi-spent">
+            <span class="kpi-label">Gasto total</span>
+            <span class="kpi-value" id="kpi-spent">$0</span>
+          </div>
+          <div class="kpi-card kpi-balance">
+            <span class="kpi-label">Balance</span>
+            <span class="kpi-value" id="kpi-balance">$0</span>
+          </div>
+          <div class="kpi-card kpi-progress">
+            <span class="kpi-label">Presupuesto usado</span>
+            <div class="progress-ring-wrap">
+              <canvas id="ring-chart" width="80" height="80"></canvas>
+              <span class="ring-label" id="ring-pct">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <h3 class="card-title">Gastos recientes</h3>
+            <ul id="recent-expenses" class="expense-list"></ul>
+            <p id="no-recent" class="empty-state">Sin gastos registrados</p>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Por categoría</h3>
+            <canvas id="dash-donut" height="20"></canvas>
+            <p id="no-categories" class="empty-state hidden">Sin datos</p>
+          </div>
+        </div>
+
+        <!-- Quick add FAB -->
+        <button class="fab" id="fab-add" aria-label="Agregar gasto">+</button>
+      </section>
+
+      <!-- ─── GASTOS PAGE ─── -->
+      <section id="page-gastos" class="page">
+        <div class="page-header">
+          <h1>Gastos</h1>
+          <button class="btn-primary" id="btn-open-modal">+ Nuevo gasto</button>
+        </div>
+
+        <div class="filters-bar">
+          <select id="filter-cat" class="filter-select">
+            <option value="">Todas las categorías</option>
+          </select>
+          <input type="date" id="filter-date-from" class="filter-input" />
+          <input type="date" id="filter-date-to" class="filter-input" />
+          <button class="btn-secondary" id="btn-clear-filter">Limpiar</button>
+        </div>
+
+        <div class="card">
+          <table class="expense-table" id="expenses-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Descripción</th>
+                <th>Categoría</th>
+                <th>Monto</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="expenses-tbody"></tbody>
+          </table>
+          <p id="no-expenses" class="empty-state">No hay gastos para mostrar</p>
+        </div>
+      </section>
+
+      <!-- ─── PRESUPUESTO PAGE ─── -->
+      <section id="page-presupuesto" class="page">
+        <div class="page-header">
+          <h1>Presupuesto</h1>
+        </div>
+
+        <div class="card income-card">
+          <h3 class="card-title">Ingreso mensual</h3>
+          <div class="income-row">
+            <input type="number" id="income-input" class="big-input" placeholder="0.00" min="0" step="0.01" />
+            <button class="btn-primary" id="btn-save-income">Guardar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Presupuesto por categoría</h3>
+          <div id="budget-categories-list" class="budget-list"></div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Progreso de presupuesto</h3>
+          <div id="budget-progress-list" class="budget-progress-list"></div>
+          <p id="no-budget" class="empty-state">Configure su ingreso para calcular presupuestos</p>
+        </div>
+      </section>
+
+      <!-- ─── GRÁFICOS PAGE ─── -->
+      <section id="page-graficos" class="page">
+        <div class="page-header">
+          <h1>Gráficos</h1>
+        </div>
+
+        <div class="charts-grid">
+          <div class="card">
+            <h3 class="card-title">Presupuesto vs Gasto Real</h3>
+            <canvas id="bar-budget-vs-real" height="300"></canvas>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Tendencia mensual</h3>
+            <canvas id="line-trend" height="300"></canvas>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Distribución de gastos</h3>
+            <canvas id="donut-distribution" height="300"></canvas>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Gastos diarios</h3>
+            <canvas id="bar-daily" height="300"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── RESUMEN PAGE ─── -->
+      <section id="page-resumen" class="page">
+        <div class="page-header">
+          <h1>Resumen mensual</h1>
+          <button class="btn-secondary" id="btn-export">⬇ Exportar CSV</button>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-label">Total gastado</span>
+            <span class="kpi-value" id="sum-total">$0</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Categoría mayor gasto</span>
+            <span class="kpi-value" id="sum-top-cat">—</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Promedio diario</span>
+            <span class="kpi-value" id="sum-daily-avg">$0</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Transacciones</span>
+            <span class="kpi-value" id="sum-count">0</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Detalle por categoría</h3>
+          <div id="summary-table-wrap">
+            <table class="expense-table" id="summary-table">
+              <thead>
+                <tr><th>Categoría</th><th>Gastos</th><th>Total</th><th>Presupuesto</th><th>Estado</th></tr>
+              </thead>
+              <tbody id="summary-tbody"></tbody>
+            </table>
+          </div>
+          <p id="no-summary" class="empty-state hidden">Sin datos en este período</p>
+        </div>
+      </section>
+
+    </main><!-- /main-content -->
+  </div><!-- /app -->
+
+  <!-- ═══════════════════════════════════════
+       MODAL: AGREGAR / EDITAR GASTO
+  ════════════════════════════════════════ -->
+  <div id="modal-expense" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Nuevo gasto</h2>
+        <button class="modal-close" id="modal-close" aria-label="Cerrar">✕</button>
+      </div>
+      <form id="expense-form" class="modal-form" novalidate>
+        <div class="form-group">
+          <label for="exp-desc">Descripción *</label>
+          <input type="text" id="exp-desc" placeholder="Ej. Almuerzo restaurante" required maxlength="100" />
+          <span class="field-error" id="err-desc"></span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="exp-amount">Monto *</label>
+            <input type="number" id="exp-amount" placeholder="0.00" min="0.01" step="0.01" required />
+            <span class="field-error" id="err-amount"></span>
+          </div>
+          <div class="form-group">
+            <label for="exp-date">Fecha *</label>
+            <input type="date" id="exp-date" required />
+            <span class="field-error" id="err-date"></span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="exp-cat">Categoría *</label>
+          <select id="exp-cat" required>
+            <option value="">Selecciona una categoría</option>
+          </select>
+          <span class="field-error" id="err-cat"></span>
+        </div>
+        <div class="form-group">
+          <label for="exp-notes">Notas (opcional)</label>
+          <textarea id="exp-notes" rows="2" maxlength="200" placeholder="Observaciones adicionales..."></textarea>
+        </div>
+        <input type="hidden" id="exp-id" />
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="btn-cancel">Cancelar</button>
+          <button type="submit" class="btn-primary" id="btn-save-expense">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- SCRIPTS -->
+  <script src="js/db.js"></script>
+  <script src="js/categories.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

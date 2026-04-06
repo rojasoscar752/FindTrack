@@ -2,7 +2,7 @@
   "name": "FinTrack — Control Financiero",
   "short_name": "FinTrack",
   "description": "Rastrea tus gastos, establece presupuestos y visualiza tus patrones financieros.",
-  "start_url": "/",
+  "start_url": "/FindTrack/",
   "display": "standalone",
   "background_color": "#0a0f1e",
   "theme_color": "#0a0f1e",

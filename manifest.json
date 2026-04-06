@@ -8,7 +8,7 @@
   "theme_color": "#0a0f1e",
   "orientation": "portrait-primary",
   "lang": "es",
-  "scope": "./",
+  "scope": "/FindTrack/",
   "categories": ["finance", "productivity"],
   "icons": [
     {
